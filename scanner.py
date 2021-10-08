@@ -2,12 +2,12 @@ import threading
 import socket
 from tqdm import tqdm
 
-adr = 'localhost'
+adr = '89.108.93.102'
 free_port = []
 start = 0
-finish = 65535
-NumbersOfThreads=3000
-one_percent= int((finish-start)/100)
+finish = 500
+NumbersOfThreads = 150
+one_percent = int((finish-start)/100)
 all_port = [i for i in range(start, finish)]
 procent = 0
 pbar = tqdm(total=100)
@@ -38,7 +38,7 @@ threads = [threading.Thread(target=port_thread) for i in range(NumbersOfThreads)
 [i.start() for i in threads]
 [i.join() for i in threads]
 print("\n")
-lenght=len(free_port)
+lenght = len(free_port)
 print(f"Список открытых портов (всего {lenght}):")
 print(sorted(free_port))
 print(len(free_port))
