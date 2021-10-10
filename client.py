@@ -1,21 +1,17 @@
 import socket
-from time import sleep
 
-def main():
-    sock = socket.socket()
-    sock.setblocking(1)
-    sock.connect(('localhost', 9090))
+ip = "127.0.0.1"
+port = 8080
+sock = socket.socket()
+sock.connect((ip, port))
+sock.sendall(bytes("Я новый клиент", 'UTF-8'))
 
-    while True:
-        msg = input()
-        if(msg == "exit"):
-            break
-        sock.send(msg.encode())
-        data = sock.recv(1024)
-        print(data.decode())
-
-    sock.close()
-    #print(data.decode())
-
-if __name__ == "__main__":
-    main();
+while True:
+    data = sock.recv(1024)
+    print("От сервера :", data.decode())
+    out_data = input()
+    sock.sendall(bytes(out_data, 'UTF-8'))
+    if out_data == 'exit' or out_data=='':
+        print ('Всего хорошего')
+        break
+sock.close()
