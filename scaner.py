@@ -1,58 +1,36 @@
+import threading
 import socket
-from threading import Thread
-import time
-from progress.bar import IncrementalBar
+from tqdm import tqdm
+import random
 
-N = 2**16 - 1
-
-ports = []
-
-def port_scanner(port_start, port_finish):
-    #print(port_start, " ", port_finish)
-    #addr = str(input("Введите IP-адресс пользователя: "))
-    addr = "localhost"
-    for port in range(port_start, port_finish + 1):
+def portscan(port):
+    global r
+    ports = []
+    d = 101
+    f = 1
+    ip = input()
+    for i in tqdm(range(f, d),desc="Port"):
         sock = socket.socket()
+        sock.settimeout(0.5)
         try:
-            print(port)
-            sock.connect((addr, port))
-            ports.append(port)
-            #print(port, "Добавлен")
-            #print("Порт", port, "открыт")
+            connection = sock.connect((ip, i))
+            ports.append(i)
+            connection.close()
         except:
-            continue
-        finally:
-            sock.close()
+            #print(i)
+            pass
+    if len(ports) > 0:
+        print(f'Список свободных портов {ports}')
+        a = random.choice(ports)
+        ports.remove(a)
+        print(f'Порт {a} открыт')
+    else:
+        print('Нет свободных портов.')
 
-def main():
-    bar = IncrementalBar('Countdown', max = N)
 
-    t1 = Thread(target=port_scanner, args=[0, 13107])
-    t2 = Thread(target=port_scanner, args=[13108, 26214])
-    t3 = Thread(target=port_scanner, args=[26215, 39321])
-    t4 = Thread(target=port_scanner, args=[39322, 52428])
-    t5 = Thread(target=port_scanner, args=[52429, 65535])
-
-    t1.start()
-    t2.start()
-    t3.start()
-    t4.start()
-    t5.start()
-
-    for i in range(N):
-        bar.next(n=5)
-        time.sleep(1)
-
-    bar.finish()
-
-    t1.join()
-    t2.join()
-    t3.join()
-    t4.join()
-    t5.join()
-
-    ports.sort()
-    print(ports)
-
-if __name__ == "__main__":
-    main()
+s = 1  # Введите число s от 1 до 64 (это число умножается на 1024) для проверки портов. 1 = 1024, 64 = 65536
+r = s * 100
+print ("Запущено сканирование " + str(r) + " портов")
+for element in range(s + 1):
+    t = threading.Thread(target=portscan, kwargs={'port': element})
+    t.start()
