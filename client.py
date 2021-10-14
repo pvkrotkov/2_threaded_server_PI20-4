@@ -1,16 +1,20 @@
 import socket
-from time import sleep
 
-sock = socket.socket()
-sock.setblocking(1)
-sock.connect(('10.38.165.12', 9090))
+def ser_ver():
+    sock = socket.socket()
+    sock.connect(('localhost', 9090))
 
-#msg = input()
-msg = "Hi!"
-sock.send(msg.encode())
+    while True:
+        message = input()
+        if message == 'exit':
+            break
+        sock.send(message.encode())
+        print(sock.recv(1024).decode())
 
-data = sock.recv(1024)
+    sock.close()
+    
+ser_ver()
 
-sock.close()
-
-print(data.decode())
+#Делаем объявление сокета и подключаемся по порту к локальному хосту, на котором работает сервер.
+#Далее производим отправление данных серверу, пока от пользователя не поступит команда "exit".
+#После чего производим печать полученных данных и закрываем сокет.
