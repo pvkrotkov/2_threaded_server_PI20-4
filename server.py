@@ -1,20 +1,31 @@
 import socket
+from threading import Thread
 
-sock = socket.socket()
-sock.bind(('', 9090))
-sock.listen(0)
-conn, addr = sock.accept()
-print(addr)
+def obr(conn):
+    with conn:
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+            conn.send(data)
 
-msg = ''
 
-while True:
-	data = conn.recv(1024)
-	if not data:
-		break
-	msg += data.decode()
-	conn.send(data)
 
-print(msg)
+#Данная функцмя будет являться обработчиком сокета подключения с клиентом.
+#Для того, чтобы в случае ошибок сокет был закрыт - 100%, используем менеджер контекста.
+#После чего осуществляем приём данных (по 1024 КБ) и делаем обратную отправку их клиенту, до тех пор, пока данные не закончатся.
 
-conn.close()
+
+def ser_ver():
+    with socket.socket() as sock:
+        sock.bind(('', 9090))
+        sock.listen()
+        while True:
+            conn, addr = sock.accept()
+            Thread(target=obr, args=[conn]).start()
+		
+ser_ver()
+
+#Объявляем сокет, используя менеджер контекста (для того, чтобы в случае ошибок сокет был закрыт - 100%).
+#Далее делаем привязку порта и слушаем порты.
+#В цикле сервер будет принимать соединения и для каждого из них создавать поток (вызывая функцию "obr"), передавая в нее аргумент - сокет подключения с клиентом.
