@@ -16,6 +16,7 @@ class Thr(Thread):
     def run(self):
         for port in range(self.start_port, self.end_port + 1, self.step):
             sock = socket.socket()
+            sock.settimeout(0.5)
             try:
                 sock.connect((self.address, port))
                 Thr.output.append(True)
