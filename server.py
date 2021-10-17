@@ -1,20 +1,24 @@
 import socket
+import threading
+
+
+def processes_client(conn):
+	while True:
+		data = conn.recv(1024)
+		if not data:
+			break
+		conn.send(data)
+
+
+SERVER_ADDRESS = ('', 9090)
+
 
 sock = socket.socket()
-sock.bind(('', 9090))
-sock.listen(0)
-conn, addr = sock.accept()
-print(addr)
-
-msg = ''
+sock.bind(SERVER_ADDRESS)
+sock.listen()
+print('Начало прослушивания порта', SERVER_ADDRESS[1])
 
 while True:
-	data = conn.recv(1024)
-	if not data:
-		break
-	msg += data.decode()
-	conn.send(data)
-
-print(msg)
-
-conn.close()
+	conn, addr = sock.accept()
+	thread = threading.Thread(target=processes_client, args=[conn])
+	thread.start()
