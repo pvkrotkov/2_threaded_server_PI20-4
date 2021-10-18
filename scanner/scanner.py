@@ -11,7 +11,7 @@ class P_Scanner:
 
     def __init__(self, host): #Хост, который мы хотим отсканировать.
         self._host = host
-        self._progress_bar = ProgressBar(self.PORTS_COUNT, 'Выполнено')
+        self._progress_bar = P_Bar(self.PORTS_COUNT, 'Выполнено')
 
     def scan_ports(self, threads_count=None): # Сканирует порты: добавляет в пул на обработку потоки со всем портами.threads_count: Максимальное кол-во потоков.
         self._progress_bar.print()
