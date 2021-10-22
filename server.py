@@ -1,20 +1,38 @@
 import socket
+import threading
 
-sock = socket.socket()
-sock.bind(('', 9090))
-sock.listen(0)
-conn, addr = sock.accept()
-print(addr)
 
-msg = ''
+# главный класс сервера
 
-while True:
-	data = conn.recv(1024)
-	if not data:
-		break
-	msg += data.decode()
-	conn.send(data)
+class T(threading.Thread):
+    n = 0
+    def __init__(self, conn, addr):
+        threading.Thread.__init__(self, name="t" + str(T.n))
+        self.n = T.n
+        T.n += 1
+        self.conn = conn
+        self.addr = addr
 
-print(msg)
+        self.start()
 
-conn.close()
+    def run(self):
+        while True:
+            data = self.conn.recv(1024)
+            if not data:
+                print('Данные не корректны')
+                break
+            print("Процесс", self.n, "Получены: ", data.decode())
+            self.conn.send(data)
+
+def main():
+    with socket.socket() as sock:
+        threads = []
+        sock.bind(('', 9090))
+        sock.listen(0)
+        while True:
+            conn, addr = sock.accept()
+            threads.append(T(conn, addr))
+
+
+if __name__ == '__main__':
+    main()
