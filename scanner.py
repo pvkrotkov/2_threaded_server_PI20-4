@@ -4,7 +4,7 @@ from time import sleep
 
 
 class T(Thread):
-    output = []
+    ports = dict()
 
     # Инициализируем данные
     def __init__(self, n, start_port, end_port, step, address):
@@ -19,12 +19,12 @@ class T(Thread):
     def run(self):
         for port in range(self.start_port, self.end_port + 1, self.step):
             sock = socket.socket()
-            sock.settimeout(0.05)
+            sock.settimeout(3)
             try:
                 sock.connect((self.address, port))
-                T.output.append(True)
+                T.ports[port] = True
             except:
-                T.output.append(False)
+                T.ports[port] = False
             finally:
                 sock.close()
 
@@ -34,22 +34,24 @@ class T(Thread):
     def progress(a, start, end):
         length = end - start + 1
         while True:
-            a.print_progress(len(a.output), length, prefix="Прогресс", suffix="Выполнено", length=55)
-            if len(a.output) == length:
+            a.print_progress(len(a.ports), length,
+                             prefix="Прогресс", suffix="Выполнено", length=55)
+            if len(a.ports) == length:
                 break
             sleep(0.1)
-        a.print_result(T.output, start)
+        a.print_result(T.ports, start, end)
 
     @staticmethod
-    def print_result(output, start_port):
-        for port, state in enumerate(output):
-            print(f"Порт {port + start_port} {'открыт' if state else 'закрыт'}")
+    def print_result(output, start, end):
+        for i in range(start, end):
+            print(f"Порт {i} {'открыт' if output[i] else 'закрыт'}")
 
     # Выводим шкалу прогресса
 
     @staticmethod
     def print_progress(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█'):
-        percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+        percent = ("{0:." + str(decimals) + "f}").format(100 *
+                                                         (iteration / float(total)))
         filledLength = int(length * iteration // total)
         bar = fill * filledLength + '-' * (length - filledLength)
         print(f'\r{prefix} |{bar}| {percent}% {suffix}', end="")
@@ -72,7 +74,8 @@ def get_input():
 
 # Запускаем
 
-def start():
+
+def start_():
     start_port, end_port, step, address = get_input()
     threads = []
     T.port = start_port - 1
@@ -83,4 +86,4 @@ def start():
 
 
 if __name__ == '__main__':
-    start()
+    start_()
