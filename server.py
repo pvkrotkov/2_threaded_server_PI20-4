@@ -1,20 +1,32 @@
 import socket
+import threading
 
-sock = socket.socket()
-sock.bind(('', 9090))
-sock.listen(0)
-conn, addr = sock.accept()
-print(addr)
+def main():
+	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+	sock.bind(('localhost', 9091))
+	sock.listen(5)
+	while True:
+	    threads = [threading.Thread(target=connect, args=[sock]) for _ in range(5)]
+	    [thread.start() for thread in threads]
+	    [thread.join() for thread in threads]
 
-msg = ''
+def connect(sock):
+    while True:
+        conn, addr = sock.accept()
+        print(f'Новый пользователь: {addr}')
+        if conn is not None:
+            new_client(conn)
 
-while True:
-	data = conn.recv(1024)
-	if not data:
-		break
-	msg += data.decode()
-	conn.send(data)
+def new_client(conn):
+    name = conn.recv(1024)
+    name = name.decode()
+    conn.send('Подключение установлено.'.encode())
+    output(conn)
 
-print(msg)
+def output(conn):
+    while True:
+        data = conn.recv(1024)
+        print(data.decode())
 
-conn.close()
+if __name__ == '__main__':
+	main()
